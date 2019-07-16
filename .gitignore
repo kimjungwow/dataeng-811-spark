@@ -1,2 +1,5 @@
 target/
 .idea/
+src/main/java/com/eighteleven/netmarble/Key.java
+jsondir/
+jsoncheckdir/

@@ -20,11 +20,12 @@ public class App
 {
 
     public static void main( String[] args ) {
+        Key mykey = new Key();
 
         SparkSession spark = SparkSession.builder()
                 .master("local")
                 .appName("App").getOrCreate();
-        System.out.println("HelloWorld!!!!\n");
+        System.out.println("HelloWorld!!!!\n" + "Kafka Source : " + mykey.Kafka_source  + "\nKafka Topic : " + mykey.Kafka_topic);
 
 
         spark.sparkContext().setLogLevel("ERROR");
@@ -32,10 +33,8 @@ public class App
         Dataset<Row> df = spark
                 .readStream()
                 .format("kafka")
-//                .option("kafka.bootstrap.servers", "172.27.8.84:9092")
-//                .option("subscribe", "testtest")
-                .option("kafka.bootstrap.servers", "10.171.64.80:9092")
-                .option("subscribe", "netmarbles.log.sknightsgb")
+                .option("kafka.bootstrap.servers", mykey.Kafka_source)
+                .option("subscribe", mykey.Kafka_topic)
                 .option("startingOffsets", "earliest")
                 .load();
 
@@ -46,11 +45,11 @@ public class App
                 .flatMap((FlatMapFunction<String, String>) x -> Arrays.asList(x.split(":")).iterator(), Encoders.STRING());
 
         StreamingQuery queryone = df.writeStream()
-//                .format("console")
-                .format("json")
-                .outputMode("append")
-                .option("path","./jsondir")
-                .option("checkpointLocation","./jsoncheckdir")
+                .format("console")
+//                .format("json")
+//                .outputMode("append")
+//                .option("path","./jsondir")
+//                .option("checkpointLocation","./jsoncheckdir")
                 .start();
 
         try {
