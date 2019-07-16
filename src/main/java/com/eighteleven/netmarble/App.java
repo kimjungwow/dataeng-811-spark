@@ -39,7 +39,6 @@ public class App
                 .option("startingOffsets", "earliest")
                 .load();
 
-
         Dataset<Row> dg = df.selectExpr("CAST(value AS STRING)");
 
         Dataset<String> ds = dg
