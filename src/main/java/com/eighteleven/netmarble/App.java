@@ -44,12 +44,12 @@ public class App
                 .as(Encoders.STRING())
                 .flatMap((FlatMapFunction<String, String>) x -> Arrays.asList(x.split(":")).iterator(), Encoders.STRING());
 
-        StreamingQuery queryone = df.writeStream()
-                .format("console")
-//                .format("json")
-//                .outputMode("append")
-//                .option("path","./jsondir")
-//                .option("checkpointLocation","./jsoncheckdir")
+        StreamingQuery queryone = dg.writeStream()
+//                .format("console")
+                .format("json")
+                .outputMode("append")
+                .option("path","./jsondir")
+                .option("checkpointLocation","./jsoncheckdir")
                 .start();
 
         try {
