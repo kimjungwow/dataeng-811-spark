@@ -1,6 +1,5 @@
 package com.eighteleven.netmarble;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
@@ -57,10 +56,5 @@ public class App
         } catch (StreamingQueryException e) {
             e.printStackTrace();
         }
-
-
-        String p = "<p> FINISH </p>";
-        System.out.println(StringEscapeUtils.escapeHtml4(p));
-
     }
 }
