@@ -34,7 +34,7 @@ public class App
                 .format("kafka")
                 .option("kafka.bootstrap.servers", mykey.Kafka_source)
                 .option("subscribe", mykey.Kafka_topic)
-//                .option("startingOffsets", "earliest")
+                .option("startingOffsets", "earliest")
                 .load();
 
         Dataset<Row> dg = df.selectExpr("CAST(value AS STRING)");
@@ -47,8 +47,9 @@ public class App
 //                .format("console")
                 .format("json")
                 .outputMode("append")
-                .option("path","./jsondir")
-                .option("checkpointLocation","./jsoncheckdir")
+                .option("checkpointLocation",mykey.Hadoop_path)
+                .option("path",mykey.Hadoop_path)
+
                 .start();
 
         try {
