@@ -20,7 +20,7 @@ public class App
 {
 
     public static void main( String[] args ) {
-//        Key mykey = new Key();
+        Key mykey = new Key();
 
         System.setProperty("hadoop.home.dir", "C:/winutils"); // for local
 
@@ -36,10 +36,8 @@ public class App
         Dataset<Row> df = spark
                 .readStream()
                 .format("kafka")
-//                .option("kafka.bootstrap.servers", mykey.Kafka_source)
-//                .option("subscribe", mykey.Kafka_topic)
-                .option("kafka.bootstrap.servers", "localhost:9092")
-                .option("subscribe", "test3")
+                .option("kafka.bootstrap.servers", mykey.Kafka_source)
+                .option("subscribe", mykey.Kafka_topic)
 //                .option("startingOffsets", "earliest")
                 .load();
 
@@ -66,6 +64,5 @@ public class App
 
 //        String p = "<p> FINISH </p>";
 //        System.out.println(StringEscapeUtils.escapeHtml4(p));
-
     }
 }
