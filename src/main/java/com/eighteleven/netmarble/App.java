@@ -1,6 +1,6 @@
 package com.eighteleven.netmarble;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+//import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
@@ -20,22 +20,27 @@ public class App
 {
 
     public static void main( String[] args ) {
-        Key mykey = new Key();
+//        Key mykey = new Key();
 
-        SparkSession spark = SparkSession.builder()
+        System.setProperty("hadoop.home.dir", "C:/winutils"); // for local
+
+        SparkSession spark = SparkSession
+                .builder()
                 .master("local")
-                .appName("App").getOrCreate();
-        System.out.println("HelloWorld!!!!\n" + "Kafka Source : " + mykey.Kafka_source  + "\nKafka Topic : " + mykey.Kafka_topic);
-
+                .appName("App")
+                .getOrCreate();
+//        System.out.println("HelloWorld!!!!\n" + "Kafka Source : " + mykey.Kafka_source  + "\nKafka Topic : " + mykey.Kafka_topic);
 
         spark.sparkContext().setLogLevel("ERROR");
 
         Dataset<Row> df = spark
                 .readStream()
                 .format("kafka")
-                .option("kafka.bootstrap.servers", mykey.Kafka_source)
-                .option("subscribe", mykey.Kafka_topic)
-                .option("startingOffsets", "earliest")
+//                .option("kafka.bootstrap.servers", mykey.Kafka_source)
+//                .option("subscribe", mykey.Kafka_topic)
+                .option("kafka.bootstrap.servers", "localhost:9092")
+                .option("subscribe", "test3")
+//                .option("startingOffsets", "earliest")
                 .load();
 
         Dataset<Row> dg = df.selectExpr("CAST(value AS STRING)");
@@ -44,7 +49,8 @@ public class App
                 .as(Encoders.STRING())
                 .flatMap((FlatMapFunction<String, String>) x -> Arrays.asList(x.split(":")).iterator(), Encoders.STRING());
 
-        StreamingQuery queryone = df.writeStream()
+        StreamingQuery queryone = ds
+                .writeStream()
                 .format("console")
 //                .format("json")
 //                .outputMode("append")
@@ -58,9 +64,8 @@ public class App
             e.printStackTrace();
         }
 
-
-        String p = "<p> FINISH </p>";
-        System.out.println(StringEscapeUtils.escapeHtml4(p));
+//        String p = "<p> FINISH </p>";
+//        System.out.println(StringEscapeUtils.escapeHtml4(p));
 
     }
 }
