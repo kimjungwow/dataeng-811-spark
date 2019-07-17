@@ -1,6 +1,5 @@
 package com.eighteleven.netmarble;
 
-//import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
@@ -22,14 +21,11 @@ public class App
     public static void main( String[] args ) {
         Key mykey = new Key();
 
-        System.setProperty("hadoop.home.dir", "C:/winutils"); // for local
-
-        SparkSession spark = SparkSession
-                .builder()
+        SparkSession spark = SparkSession.builder()
                 .master("local")
-                .appName("App")
-                .getOrCreate();
-//        System.out.println("HelloWorld!!!!\n" + "Kafka Source : " + mykey.Kafka_source  + "\nKafka Topic : " + mykey.Kafka_topic);
+                .appName("App").getOrCreate();
+        System.out.println("HelloWorld!!!!\n" + "Kafka Source : " + mykey.Kafka_source  + "\nKafka Topic : " + mykey.Kafka_topic);
+
 
         spark.sparkContext().setLogLevel("ERROR");
 
@@ -47,13 +43,12 @@ public class App
                 .as(Encoders.STRING())
                 .flatMap((FlatMapFunction<String, String>) x -> Arrays.asList(x.split(":")).iterator(), Encoders.STRING());
 
-        StreamingQuery queryone = ds
-                .writeStream()
-                .format("console")
-//                .format("json")
-//                .outputMode("append")
-//                .option("path","./jsondir")
-//                .option("checkpointLocation","./jsoncheckdir")
+        StreamingQuery queryone = dg.writeStream()
+//                .format("console")
+                .format("json")
+                .outputMode("append")
+                .option("path","./jsondir")
+                .option("checkpointLocation","./jsoncheckdir")
                 .start();
 
         try {
@@ -61,8 +56,5 @@ public class App
         } catch (StreamingQueryException e) {
             e.printStackTrace();
         }
-
-//        String p = "<p> FINISH </p>";
-//        System.out.println(StringEscapeUtils.escapeHtml4(p));
     }
 }
