@@ -80,7 +80,7 @@
           <configuration>
             <archive>
               <manifest>
-                <mainClass>com.jungwoo.netmarble.App</mainClass>
+                <mainClass>com.eighteleven.netmarble.App</mainClass>
               </manifest>
             </archive>
             <descriptorRefs>
@@ -151,7 +151,7 @@
               <manifest>
                 <addClasspath>true</addClasspath>
                 <classpathPrefix>lib/</classpathPrefix>
-                <mainClass>com.jungwoo.netmarble.App</mainClass>
+                <mainClass>com.eighteleven.netmarble.App</mainClass>
               </manifest>
 
             </archive>
