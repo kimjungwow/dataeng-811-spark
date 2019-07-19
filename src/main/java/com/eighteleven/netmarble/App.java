@@ -45,6 +45,7 @@ public class App
 
         StreamingQuery queryone = dg.writeStream()
 //                .format("console")
+                // .format("console")
                 .format("json")
                 .outputMode("append")
                 .option("checkpointLocation",mykey.Hadoop_path)
