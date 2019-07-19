@@ -9,6 +9,8 @@ import org.apache.spark.sql.streaming.StreamingQuery;
 import org.apache.spark.sql.streaming.StreamingQueryException;
 
 import java.util.Arrays;
+import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -17,7 +19,6 @@ import java.util.Arrays;
  */
 public class App
 {
-
     public static void main( String[] args ) {
         Key mykey = new Key();
 
@@ -43,7 +44,7 @@ public class App
                 .as(Encoders.STRING())
                 .flatMap((FlatMapFunction<String, String>) x -> Arrays.asList(x.split(":")).iterator(), Encoders.STRING());
 
-        StreamingQuery queryone = dg.writeStream()
+        StreamingQuery queryone = ds.writeStream()
 //                .format("console")
                 // .format("console")
                 .format("json")
@@ -58,5 +59,19 @@ public class App
         } catch (StreamingQueryException e) {
             e.printStackTrace();
         }
+
+//        System.out.println("1!!!");
+//
+//        Dataset<Row> logs = spark
+//                .read()
+//                .json(mykey.json_file);
+//
+//        System.out.println("2!!!");
+//
+//        logs.printSchema();
+//        logs.groupBy("I_LogId").count().show(); // string 형태로 저장되어 I_LogID column이 없다는 error 발생 -> 저장 형식을 DB 형태로 바꾸어야 함
+////        logs.groupBy("I_LogId", "I_LogDetailId").count().show();
+//        System.out.println("3!!!");
+
     }
 }
