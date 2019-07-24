@@ -23,17 +23,10 @@ import java.util.Arrays;
 
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.from_json;
-import static org.apache.spark.sql.types.DataTypes.IntegerType;
-import static org.apache.spark.sql.types.DataTypes.StringType;
+import static org.apache.spark.sql.types.DataTypes.*;
 
-/**
- *
- * Hello world!
- *
- */
 public class App
 {
-
     public static void main( String[] args ) {
         Key mykey = new Key();
         // Log_Schema log_schema = new Log_Schema();
@@ -46,35 +39,25 @@ public class App
 
         System.out.println("HelloWorld!!!!\n" + "Kafka Source : " + mykey.Kafka_source  + "\nKafka Topic : " + mykey.Kafka_topic);
 
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// [1] Save kafka streaming data into HDFS
 /*
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Load Hadoop file
-
-        Dataset<Row> dj= spark.read().json(mykey.Hadoop_file);
-        dj.select("I_LogId").show(10,false);
-        dj.show(10);
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-*/
-
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Save kafka streaming data
-
         Dataset<Row> df = spark
-                .readStream()
-                .format("kafka")
-                .option("kafka.bootstrap.servers", mykey.Kafka_source)
-                .option("subscribe", mykey.Kafka_topic)
-                .option("startingOffsets", "latest")
-                .option("failOnDataLoss",false)
-                .load();
+            .readStream()
+            .format("kafka")
+            .option("kafka.bootstrap.servers", mykey.Kafka_source)
+            .option("subscribe", mykey.Kafka_topic)
+            .option("startingOffsets", "latest")
+            .option("failOnDataLoss",false)
+            .load();
 
         Dataset<Row> dg = df
-                .selectExpr("CAST(value AS STRING)")
+            .selectExpr("CAST(value AS STRING)");
 
         dg.printSchema();
 
 
-        Dataset<Row> log = dg
+        Dataset<Row> dz = dg
 //                .flatMap((FlatMapFunction<Row, Row>) x -> Arrays.asList(RowFactory.create(x.mkString().replaceAll("\\\\",""))).iterator(), encoder)
                 .select(
                         from_json(dg.col("value"), DataTypes.createStructType(
@@ -138,7 +121,7 @@ public class App
                                         DataTypes.createStructField("I_GameVersion", DataTypes.StringType,true)
                                 })).getField("I_GameVersion").alias("I_GameVersion")
                         ,from_json(dg.col("value"), DataTypes.createStructType(
-                        new StructField[] {
+                                new StructField[] {
                                 DataTypes.createStructField("I_Now", DataTypes.StringType,true)
                         })).getField("I_Now").alias("I_Now")
                         ,from_json(dg.col("value"), DataTypes.createStructType(
@@ -244,13 +227,11 @@ public class App
                         ,from_json(dg.col("value"), DataTypes.createStructType(
                                 new StructField[] {
                                         DataTypes.createStructField("I_NMModel", DataTypes.StringType,true)
-                                })).getField("I_NMModel").alias("I_NMModel")
-
-                );
+                                })).getField("I_NMModel").alias("I_NMModel"));
 
         dz.printSchema();
 
-        StreamingQuery queryone = log
+        StreamingQuery queryone = dz
                 .writeStream()
 //                .format("console")
                 .format("json")
@@ -261,13 +242,24 @@ public class App
                 .start();
         
         try {
-            queryone.awaitTermination();
+                queryone.awaitTermination();
         } catch (StreamingQueryException e) {
-            e.printStackTrace();
+                e.printStackTrace();
         }
-    }
+
+ */
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// [2] Load Hadoop file
+
+        Dataset<Row> dj= spark.read().json(mykey.Hadoop_file);
+//        dj.select("I_LogId").show(10,false);
+        dj.show(10);
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+    }
 }
 
