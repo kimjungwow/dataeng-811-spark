@@ -128,7 +128,7 @@ public class App
                                 })).getField("I_GameVersion").alias("I_GameVersion")
                         ,from_json(dg.col("value"), DataTypes.createStructType(
                         new StructField[] {
-                                DataTypes.createStructField("I_Now", DataTypes.StringType,true)
+                                DataTypes.createStructField("I_Now", StringType,true)
                         })).getField("I_Now").alias("I_Now")
                         ,from_json(dg.col("value"), DataTypes.createStructType(
                                 new StructField[] {
@@ -248,7 +248,7 @@ public class App
                 .outputMode("append")
                 .option("checkpointLocation",mykey.Hadoop_path)
                 .option("path",mykey.Hadoop_path)
-//                .partitionBy("year","month","day","hour")
+//                .partitionBy("I_LogId","I_LogDetailId")
                 .start();
 
         try {
