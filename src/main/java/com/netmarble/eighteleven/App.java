@@ -3,6 +3,21 @@ package com.netmarble.eighteleven;
 import org.apache.spark.sql.*;
 
 import static org.apache.spark.sql.functions.from_json;
+import static org.apache.spark.sql.functions.*;
+import static org.apache.spark.sql.types.DataTypes.*;
+
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.FlatMapFunction;
+import org.apache.spark.sql.*;
+import static org.apache.spark.sql.functions.col;
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder;
+import org.apache.spark.sql.catalyst.encoders.RowEncoder;
+import org.apache.spark.sql.streaming.StreamingQuery;
+import org.apache.spark.sql.streaming.StreamingQueryException;
+import org.apache.spark.sql.types.DataType;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
 
 public class App {
     public static void main(String[] args) {
@@ -19,7 +34,7 @@ public class App {
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // [1] Save kafka streaming data into HDFS
-/*
+
         Dataset<Row> df = spark
             .readStream()
             .format("kafka")
@@ -225,20 +240,20 @@ public class App {
                 e.printStackTrace();
         }
 
- */
+
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
+/*
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // [2] Load Hadoop file and query
-        Dataset<Row> dj = spark.read().json(mykey.Hadoop_file);
-        dj.select("I_LogId").show(10,false);
-        dj.groupBy(dj.col("I_LogId"), dj.col("I_LogDetailId")).count().show();
-        dj.select(dj.col("I_LogDes")).show(false);
-        dj.show(1);
+        Dataset<Row> log = spark.read().json(mykey.Hadoop_file);
+        log.select("I_LogId").show(10,false);
+        log.groupBy(log.col("I_LogId"), log.col("I_LogDetailId")).count().show();
+        log.select(log.col("I_LogDes")).show(false);
+        log.show(1);
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+*/
     }
 }
 
