@@ -1,34 +1,32 @@
 package com.eighteleven.netmarble;
 
+import static org.apache.spark.sql.functions.*;
+import static org.apache.spark.sql.types.DataTypes.*;
+
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.sql.*;
+import static org.apache.spark.sql.functions.col;
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder;
 import org.apache.spark.sql.catalyst.encoders.RowEncoder;
 import org.apache.spark.sql.streaming.StreamingQuery;
 import org.apache.spark.sql.streaming.StreamingQueryException;
-import org.apache.spark.sql.types.DataType;
-import org.apache.spark.sql.types.DataTypes;
-import org.apache.spark.sql.types.StructField;
-import org.apache.spark.sql.types.StructType;
+import org.apache.spark.sql.types.*;
 
 import java.io.Serializable;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+
 
 import java.util.Arrays;
 
-import static org.apache.spark.sql.functions.col;
-import static org.apache.spark.sql.functions.from_json;
+import static org.apache.spark.sql.types.DataTypes.*;
 
-/**
- *
- * Hello world!
- *
- */
 public class App
 {
-
     public static void main( String[] args ) {
         Key mykey = new Key();
+        // Log_Schema log_schema = new Log_Schema();
 
         SparkSession spark = SparkSession.builder()
                 .master("local")
@@ -37,10 +35,25 @@ public class App
         spark.sparkContext().setLogLevel("ERROR");
 
         System.out.println("HelloWorld!!!!\n" + "Kafka Source : " + mykey.Kafka_source  + "\nKafka Topic : " + mykey.Kafka_topic);
+        long current = Calendar.getInstance().getTime().getTime();
+        long t =1563152955263L;
+
+        System.out.println(current);
+        System.out.println(current-300*1000);
+        System.out.println(current/(1000*300));
+        System.out.println((current-300*1000)/(1000*300));
+        Date date = new Date(current);
+        System.out.println(date.toString());
+        System.out.println(new Date(1563152955263L).toString());
+        System.out.println(new Date(1563152955263L));
+
+
+
+
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // [1] Save kafka streaming data into HDFS
-/*
+
         Dataset<Row> df = spark
             .readStream()
             .format("kafka")
@@ -190,7 +203,9 @@ public class App
                         ,from_json(dg.col("value"), DataTypes.createStructType(
                                 new StructField[] {
                                         DataTypes.createStructField("I_RegDateTime", DataTypes.LongType,true)
-                                })).getField("I_RegDateTime").alias("I_RegDateTime")
+                                })).getField("I_RegDateTime")
+//                                .cast(DateType)
+                                .alias("I_RegDateTime")
                         ,from_json(dg.col("value"), DataTypes.createStructType(
                                 new StructField[] {
                                         DataTypes.createStructField("I_ConnectorVersion", DataTypes.StringType,true)
@@ -231,13 +246,20 @@ public class App
         dz.printSchema();
 
         StreamingQuery queryone = dz
+                .withColumn("day",col("I_RegDateTime").cast("double").divide((double)1000).cast("int").cast("timestamp"))
+
+
+                .withColumn("hour",hour(col("day")))
+                .withColumn("year", year(col("day")))
+                .withColumn("month", month(col("day")))
+                .withColumn("day", dayofmonth(col("day")))
                 .writeStream()
 //                .format("console")
                 .format("json")
                 .outputMode("append")
                 .option("checkpointLocation",mykey.Hadoop_path)
                 .option("path",mykey.Hadoop_path)
-//                .partitionBy("I_LogId","I_LogDetailId")
+                .partitionBy("year", "month", "day", "hour")
                 .start();
         
         try {
@@ -246,17 +268,23 @@ public class App
                 e.printStackTrace();
         }
 
- */
+
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // [2] Load Hadoop file
-
-        Dataset<Row> dj= spark.read().json(mykey.Hadoop_file);
+/*
+//        Dataset<Row> dj= spark.read().json(mykey.Hadoop_file);
+//        Dataset<Row>  spark.sql("SELECT * FROM ")
 //        dj.select("I_LogId").show(10,false);
-        dj.show(10);
+//        dj.groupBy(dj.col("I_LogId"), dj.col("I_LogDetailId")).count().show();
 
+//        dj.filter(col("I_RegDateTime").between(1563090595066L,1563090995261L)).select(col("I_RegDateTime")).show();
+
+//        dj.select(dj.col("I_LogDes")).show(false);
+//        dj.show(10);
+*/
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     }
