@@ -1,4 +1,4 @@
-package com.eighteleven.netmarble;
+package com.netmarble.eighteleven;
 
 import static org.apache.spark.sql.functions.*;
 import static org.apache.spark.sql.types.DataTypes.*;
