@@ -248,7 +248,6 @@ public class App
         StreamingQuery queryone = dz
                 .withColumn("day",col("I_RegDateTime").cast("double").divide((double)1000).cast("int").cast("timestamp"))
 
-
                 .withColumn("hour",hour(col("day")))
                 .withColumn("year", year(col("day")))
                 .withColumn("month", month(col("day")))
