@@ -1,6 +1,7 @@
 target/
 .idea/
 src/main/java/com/netmarble/eighteleven/Key.java
+src/main/java/com/netmarble/eighteleven/Log_Schema.java
 jsondir/
 jsoncheckdir/
 eighteleven.iml
