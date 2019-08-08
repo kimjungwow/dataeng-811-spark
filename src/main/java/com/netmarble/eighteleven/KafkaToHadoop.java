@@ -19,10 +19,11 @@ import static org.apache.spark.sql.types.DataTypes.*;
 
 public class KafkaToHadoop {
 
-    static String[] LOG_INT = {"I_LogId", "I_LogDetailId", "I_RetryCount"}, LOG_STRING = {"I_GameCode", "I_PID", "I_CountryCD", "I_LanguageCD", "I_OS", "I_DeviceOSVersion", "I_DeviceModel", "I_TimeZone", "I_SDKVersion", "I_ChannelType", "I_ConnectIP", "I_TID", "I_GameVersion", "I_Now", "I_Region", "I_UDID", "I_PlatformADID", "I_JoinedCountryCode", "I_World", "I_OldNMDeviceKey", "I_LogKey", "I_RetryReason", "I_NMMarket", "I_NMCharacterID", "I_City", "I_LogDes", "IP", "I_IPHeader", "I_ConnectorVersion", "I_RequestTime", "I_SessionID", "I_IDFV", "I_NMMobileIP", "I_NMManufacturer", "I_NMModel"}, LOG_LONG = {"I_NMTimestamp", "I_RegDateTime", "I_NMRequestTime", "I_NMEventTime"}, LOGDES_INT = {"GetCash", "GetGameMoney", "GetArousalHeroMaterial", "ArousalMaterialHeroTID", "GetArousalMaterialHero", "GetArousalMaterialAll", "ProvideObjectValue", "RewardType", "RewardSubType", "RewardValue", "P_RewardType"}, LOGDES_INT_ITER = {"GetArousalTemplateID", "GetArousalCount", "MultiRewardType", "MultiRewardValue", "MultiRewardSubType"}, LOGDES_STRING = {"Result", "PlayMode_stage", "PlayMode_cash", "PlayMode", "NOW", "type", "ProvideObjectType"};
-    static String HADOOP_PATH = "Hadoop_path", CAST_AS_STRING = "CAST(value AS STRING)", YEAR = "year", MONTH = "month", DAY = "day", HOUR = "hour", I_LOGDES = "I_LogDes", PROPERTIES = "/home/marbleint19_admin/config.properties", KAFKA_SOOURCE = "Kafka_source", KAFKA_TOPIC = "Kafka_topic", I_REGDATETIME = "I_RegDateTime", VALUE = "value", KAFKA = "kafka", KAFKA_BOOTSTRAP_SERVERS = "kafka.bootstrap.servers", SUBSCRIBE = "subscribe", STARTINGOFFSETS = "startingoffsets", LATEST = "latest", EARLIEST = "earliest", MAXOFFSETSPERTRIGGER = "maxOffsetsPerTrigger", FAILONDATALOSS = "failOnDataLoss", PARQUET = "parquet", PARQUET_BLOCK_SIZE = "parquet.block.size", CHECKPOINTLOCATION = "checkpointLocation", PATH = "path", COMPRESSION = "compression", GZIP = "gzip", LOCAL = "local", ERROR = "error";
-    static long PARQUET_BLOCKSIZE = 256 * 1024 * 1024, KAFKA_MAXOFFSETPERTRIGGER = 100000000;
+    static String[] LOG_INT = {"I_LogId", "I_LogDetailId", "I_RetryCount"}, LOG_STRING = {"I_GameCode", "I_PID", "I_CountryCD", "I_LanguageCD", "I_OS", "I_DeviceOSVersion", "I_DeviceModel", "I_TimeZone", "I_SDKVersion", "I_ChannelType", "I_ConnectIP", "I_TID", "I_GameVersion", "I_Now", "I_Region", "I_UDID", "I_PlatformADID", "I_JoinedCountryCode", "I_World", "I_OldNMDeviceKey", "I_LogKey", "I_RetryReason", "I_NMMarket", "I_NMCharacterID", "I_City", "I_LogDes", "IP", "I_IPHeader", "I_ConnectorVersion", "I_RequestTime", "I_SessionID", "I_IDFV", "I_NMMobileIP", "I_NMManufacturer", "I_NMModel"}, LOG_LONG = {"I_NMTimestamp", "I_RegDateTime", "I_NMRequestTime", "I_NMEventTime"}, LOGDES_INT = {"GetCash", "GetGameMoney", "GetGuildPoint", "GetFame",  "ProvideObjectValue", "RewardType", "RewardSubType", "RewardValue", "P_RewardType", "UseCash"}, LOGDES_INT_ITER = { "MultiRewardType", "MultiRewardValue", "MultiRewardSubType"}, LOGDES_STRING = {"Result", "PlayMode_stage", "PlayMode_cash", "PlayMode", "PlayMode_sub", "NOW", "type", "ProvideObjectType"}, LOGDES_SHORT = {"UseStamina", "UseTowerStamina", "UseArenaStamina"};
+    static String KAFKATOHADOOP = "KafkaToHadoop", SKNIGHTSGB = "sknightsgb", I_GAMECODE = "I_GameCode", HADOOP_PATH = "Hadoop_path", CAST_AS_STRING = "CAST(value AS STRING)", YEAR = "year", MONTH = "month", DAY = "day", HOUR = "hour", I_LOGDES = "I_LogDes", PROPERTIES = "/home/marbleint19_admin/config.properties", KAFKA_SOOURCE = "Kafka_source", KAFKA_TOPIC = "Kafka_topic", I_REGDATETIME = "I_RegDateTime", VALUE = "value", KAFKA = "kafka", KAFKA_BOOTSTRAP_SERVERS = "kafka.bootstrap.servers", SUBSCRIBE = "subscribe", STARTINGOFFSETS = "startingoffsets", LATEST = "latest", EARLIEST = "earliest", MAXOFFSETSPERTRIGGER = "maxOffsetsPerTrigger", FAILONDATALOSS = "failOnDataLoss", PARQUET = "parquet", PARQUET_BLOCK_SIZE = "parquet.block.size", CHECKPOINTLOCATION = "checkpointLocation", PATH = "path", COMPRESSION = "compression", GZIP = "gzip", LOCAL = "local[3]", ERROR = "error";
+    static long PARQUET_BLOCKSIZE = 256 * 1024 * 1024, KAFKA_MAXOFFSETPERTRIGGER = 150000;
     static double THOUSAND = 1000;
+    static int THREE = 3;
 
     public static void main(String[] args) {
         // 서버에 저장된 .properties 파일로부터 읽어옴
@@ -35,8 +36,9 @@ public class KafkaToHadoop {
 
         SparkSession spark = SparkSession.builder()
                 .master(LOCAL)
-                .appName("KafkaToHadoop").getOrCreate();
+                .appName(KAFKATOHADOOP).getOrCreate();
         spark.sparkContext().setLogLevel(ERROR);
+
         System.out.println("\n\n*****************************\n*** Kafka -> Hadoop START ***\n" + "Kafka Source : " + prop.getProperty(KAFKA_SOOURCE) + "\nKafka Topic : " + prop.getProperty(KAFKA_TOPIC) + "\n*****************************\n");
 
         // Kafka로부터 읽어옴
@@ -56,6 +58,8 @@ public class KafkaToHadoop {
         dz = do_withcolumns_TimePartition(dz); // Partition에 필요한 col 추가
 
         StreamingQuery queryone = dz
+                .filter(dz.col(I_GAMECODE).equalTo(SKNIGHTSGB))
+                .coalesce(THREE)
                 .writeStream()
                 .format(PARQUET)
                 .option(PARQUET_BLOCK_SIZE, PARQUET_BLOCKSIZE)
@@ -117,6 +121,11 @@ public class KafkaToHadoop {
         for (int i = 0; i < LOGDES_STRING.length; i++) {
             data = data.withColumn(LOGDES_STRING[i], get_field_from_json(data, StringType, LOGDES_STRING[i]));
         }
+        for (int i = 0; i < LOGDES_SHORT.length; i++) {
+            data = data.withColumn(LOGDES_SHORT[i], get_field_from_json(data, ShortType, LOGDES_SHORT[i]));
+        }
+
+
         return data;
     }
 }
