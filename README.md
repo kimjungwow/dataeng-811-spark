@@ -2,4 +2,6 @@
   
 ![시스템](./image/system.png)  
 
+![스케쥴](./image/schedule.png)  
+
 
